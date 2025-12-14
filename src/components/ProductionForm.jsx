@@ -23,6 +23,7 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
 
         // Datos de Producción
         cantidad_producida: 1,
+        es_pedido: false,
 
         // Costos
         costo_materiales: '',
@@ -45,6 +46,7 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                 foto_url: editingItem.foto_url || '',
 
                 cantidad_producida: editingItem.cantidad_producida || 1,
+                es_pedido: editingItem.es_pedido || false,
 
                 costo_materiales: editingItem.costo_materiales || '',
                 horas_trabajo: editingItem.horas_trabajo || '',
@@ -64,6 +66,7 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                 precio_venta: '',
                 foto_url: '',
                 cantidad_producida: 1,
+                es_pedido: false,
                 costo_materiales: '',
                 horas_trabajo: '',
                 costo_hora: '25.00',
@@ -127,8 +130,8 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                 await sql(
                     `UPDATE produccion_taller SET
                         cantidad_producida = $1, costo_materiales = $2, horas_trabajo = $3, 
-                        costo_hora = $4, costo_herramientas = $5, otros_gastos = $6
-                     WHERE id_produccion = $7`,
+                        costo_hora = $4, costo_herramientas = $5, otros_gastos = $6, es_pedido = $7
+                     WHERE id_produccion = $8`,
                     [
                         formData.cantidad_producida,
                         formData.costo_materiales || 0,
@@ -136,6 +139,7 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                         formData.costo_hora || 0,
                         formData.costo_herramientas || 0,
                         formData.otros_gastos || 0,
+                        formData.es_pedido,
                         editingItem.id_produccion
                     ]
                 );
@@ -163,8 +167,8 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                 // 2. Insertar Producción
                 await sql(
                     `INSERT INTO produccion_taller 
-                    (id_producto, cantidad_producida, costo_materiales, horas_trabajo, costo_hora, costo_herramientas, otros_gastos)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    (id_producto, cantidad_producida, costo_materiales, horas_trabajo, costo_hora, costo_herramientas, otros_gastos, es_pedido)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
                     [
                         idProducto,
                         formData.cantidad_producida,
@@ -172,14 +176,39 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                         formData.horas_trabajo || 0,
                         formData.costo_hora || 0,
                         formData.costo_herramientas || 0,
-                        formData.otros_gastos || 0
+                        formData.otros_gastos || 0,
+                        formData.es_pedido
                     ]
                 );
             }
 
             setSuccess(true);
+
+            // Limpiar formulario después de guardar exitosamente
             setTimeout(() => {
                 setSuccess(false);
+
+                // Resetear todos los campos del formulario
+                setFormData({
+                    nombre_producto: '',
+                    metal: 'Plata',
+                    tipo_producto: 'Anillo',
+                    precio_venta: '',
+                    foto_url: '',
+                    cantidad_producida: 1,
+                    es_pedido: false,
+                    costo_materiales: '',
+                    horas_trabajo: '',
+                    costo_hora: '25.00',
+                    costo_herramientas: '',
+                    otros_gastos: '',
+                    observaciones: ''
+                });
+
+                // Limpiar imagen
+                setPreviewUrl(null);
+                setImageFile(null);
+
                 if (onSuccess) onSuccess(); // Notificar al padre para recargar lista
             }, 1000);
 
@@ -314,6 +343,29 @@ export default function ProductionForm({ editingItem, onSuccess, onCancelEdit })
                                 placeholder="0.00"
                             />
                         </div>
+                    </div>
+
+                    {/* Checkbox: Es Pedido */}
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border-2 border-yellow-200 shadow-sm">
+                        <input
+                            type="checkbox"
+                            id="es_pedido"
+                            name="es_pedido"
+                            checked={formData.es_pedido}
+                            onChange={(e) => setFormData({ ...formData, es_pedido: e.target.checked })}
+                            className="w-5 h-5 text-amber-600 rounded focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <label htmlFor="es_pedido" className="flex-1 cursor-pointer">
+                            <div className="font-bold text-gray-800 text-sm">Es un pedido (no actualiza inventario)</div>
+                            <div className="text-xs text-gray-600 mt-0.5">
+                                Marca esta opción si es un pedido específico. El registro aparecerá en producción pero NO se sumará al stock.
+                            </div>
+                        </label>
+                        {formData.es_pedido && (
+                            <span className="bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                PEDIDO
+                            </span>
+                        )}
                     </div>
 
                     {/* Sección 3: Costos (El Corazón) */}

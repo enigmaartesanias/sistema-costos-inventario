@@ -1,0 +1,7 @@
+﻿          <Route path="/stock-inicial" element={
+            <PrivateRoute>
+              <Layout>
+                <InventoryInitialForm />
+              </Layout>
+            </PrivateRoute>
+          } />
