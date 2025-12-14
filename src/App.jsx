@@ -26,9 +26,19 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
       <nav className="bg-white shadow p-4 mb-4 flex justify-between items-center sticky top-0 z-10">
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
-          Joyería
+          Enigma sistema erp
         </h1>
-        <button onClick={logout} className="text-sm text-red-500 font-medium">Salir</button>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://artesaniasenigma.com/admin"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-purple-600 font-medium hover:text-purple-700 transition-colors"
+          >
+            Panel Admin
+          </a>
+          <button onClick={logout} className="text-sm text-red-500 font-medium">Salir</button>
+        </div>
       </nav>
 
       <main className="container mx-auto px-4">
